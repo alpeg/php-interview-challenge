@@ -10,30 +10,53 @@ use App\View;
 
 class ItemsView extends View
 {
+    const ITEM_ADDED_OK = 1;
+    const ITEM_ADDED_EDIT = 2;
+    const ITEM_ADDED_NOEDIT = 3;
 
     public function render($options)
     {
-        $options = $options + ['items' => [], 'order' => '', 'self' => '', 'itemsPage' => 0, 'itemsEdit' => null];
+        $options = $options + ['items' => [], 'order' => '', 'self' => '', 'itemsPage' => 0, 'itemsEdit' => null, 'itemsAdded' => null];
         extract($options);
         /** @var TaskItem[] $items */
         ?>
-        <table class="table table-striped">
+        <?php if ($itemsAdded): ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>
+                <?php if ($itemsAdded == self::ITEM_ADDED_OK): ?>
+                    Элемент списка успешно добавлен.
+                <?php elseif ($itemsAdded == self::ITEM_ADDED_EDIT): ?>
+                    Элемент списка успешно отредактирован.
+                <?php elseif ($itemsAdded == self::ITEM_ADDED_NOEDIT): ?>
+                    Вы ничего не поменяли.
+                <?php endif; ?>
+            </strong>
+            <?php if ($itemsAdded == 2): ?>
+                Ему добавлена красивая иконка ✍️️.
+            <?php endif; ?>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    <?php endif; ?>
+
+        <table class="table table-striped table-sm">
         <thead>
         <tr>
             <th></th>
-            <th>Пользователь
+            <th class="text-nowrap">Пользователь
                 <a class="btn <?= $order === 'username_asc' ? 'btn-primary' : 'btn-light' ?> btn-sm"
                    href="<?= BASE ?>tasks/order/username_asc">🔼</a>
                 <a class="btn <?= $order === 'username_desc' ? 'btn-primary' : 'btn-light' ?> btn-sm"
                    href="<?= BASE ?>tasks/order/username_desc">🔽</a>
             </th>
-            <th>E-mail
+            <th class="text-nowrap">E-mail
                 <a class="btn <?= $order === 'email_asc' ? 'btn-primary' : 'btn-light' ?> btn-sm"
                    href="<?= BASE ?>tasks/order/email_asc">🔼</a>
                 <a class="btn <?= $order === 'email_desc' ? 'btn-primary' : 'btn-light' ?> btn-sm"
                    href="<?= BASE ?>tasks/order/email_desc">🔽</a>
             </th>
-            <th>Текст
+            <th class="text-nowrap">Текст
                 <a class="btn <?= $order === 'text_asc' ? 'btn-primary' : 'btn-light' ?> btn-sm"
                    href="<?= BASE ?>tasks/order/text_asc">🔼</a>
                 <a class="btn <?= $order === 'text_desc' ? 'btn-primary' : 'btn-light' ?> btn-sm"
@@ -47,7 +70,10 @@ class ItemsView extends View
         foreach ($items as $item) {
             ?>
             <tr>
-                <td><?= $item->getComplete() ? '☑️' : '🔲' ?></td>
+                <td class="text-nowrap">
+                    <?= $item->getComplete() ? '☑️' : '🔲' ?>
+                    <abbr title="Отредактировано администратором"><?= $item->getEdited() ? '✍️️' : '' ?></abbr>
+                </td>
                 <td><?= htmlspecialchars($item->getUsername()) ?></td>
                 <td><?= htmlspecialchars($item->getEmail()) ?></td>
                 <td>
@@ -67,14 +93,14 @@ class ItemsView extends View
                     <?php endif; ?>
                 </td>
                 <?php if ($this->isAdmin()): ?>
-                    <td>
+                    <td class="text-nowrap">
                     <?php if (!$item->getComplete()): ?>
-                        <a class="btn btn-success btn-sm"
+                        <a title="Отметить завершенным" class="btn btn-success btn-sm"
                            href="<?= BASE ?>tasks/edit/<?= $item->getId() ?>/done?next=<?= htmlspecialchars(rawurlencode($self . '?page=' . ($itemsPage + 1))) ?>">
                             ✅
                         </a>
                     <?php endif; ?>
-                    <a class="btn btn-primary btn-sm"
+                    <a title="Редактировать описание" class="btn btn-primary btn-sm"
                        href="<?= $self . '?page=' . ($itemsPage + 1) . '&edit=' . $item->getId() ?>">
                         ✏️
                     </a>

@@ -8,6 +8,7 @@ use App\Controller;
 use App\Model\TaskItem;
 use App\Service\Db;
 use App\View\ItemsPage;
+use App\View\ItemsView;
 
 class TaskController extends Controller
 {
@@ -37,6 +38,7 @@ class TaskController extends Controller
             'order' => $order,
             'self' => BASENS . $path,
             'itemsEdit' => isset($_GET['edit']) ? ((int)$_GET['edit']) : null,
+            'itemsAdded' => isset($_GET['added']) ? ((int)$_GET['added']) : null,
         ]);
     }
 
@@ -53,7 +55,7 @@ class TaskController extends Controller
         setcookie('itemsFormUsername', $item->getUsername(), time() + 3600 * 24 * 30, BASENS, null, true, false);
         setcookie('itemsFormEmail', $item->getEmail(), time() + 3600 * 24 * 30, BASENS, null, true, false);
 
-        header('Location: ' . BASE);
+        header('Location: ' . BASE . '?added=' . ItemsView::ITEM_ADDED_OK);
     }
 
 
@@ -76,9 +78,15 @@ class TaskController extends Controller
             !isset($_POST['task'])
             || !AppUtil::validateAssocSimple($taskArr = $_POST['task'], ['text' => true], true)
         ) die('HTTP/1.0 400 Bad Request');
-        $items[0]->setText($taskArr['text']);
+        if ($taskArr['text'] != $items[0]->getText()) {
+            $items[0]->setText($taskArr['text']);
+            $items[0]->setEdited(1);
+            $added = ItemsView::ITEM_ADDED_EDIT;
+        } else {
+            $added = ItemsView::ITEM_ADDED_NOEDIT;
+        }
         $db->store($items[0]);
-        header('Location: ' . (isset($_GET['next']) ? $_GET['next'] : BASE));
+        header('Location: ' . (isset($_GET['next']) ? $_GET['next'] : BASE) . '&added=' . $added);
     }
 
     public function done($verb, $path, $taskId)

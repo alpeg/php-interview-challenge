@@ -28,6 +28,7 @@ class Auth extends Service
     {
         return !!$this->getUser();
     }
+
     public function isAdmin()
     {
         $user = $this->getUser();

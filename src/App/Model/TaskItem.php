@@ -18,6 +18,7 @@ class TaskItem extends Model
     private $email;
     private $text;
     private $complete;
+    private $edited;
 
     /**
      * @return mixed
@@ -97,6 +98,22 @@ class TaskItem extends Model
     public function setComplete($complete)
     {
         $this->complete = (int)$complete;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getEdited()
+    {
+        return $this->edited;
+    }
+
+    /**
+     * @param int $edited
+     */
+    public function setEdited($edited)
+    {
+        $this->edited = (int)$edited;
     }
 
 }
