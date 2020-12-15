@@ -18,6 +18,7 @@ class Auth extends Service
             if ($_SESSION['user']) {
                 $this->setUser($_SESSION['user']);
             } else {
+                unset($_SESSION['user']);
                 setcookie('auth', '0', 1, BASENS, null, true, false);
                 session_destroy();
             }

@@ -64,6 +64,7 @@ class TaskController extends Controller
         if (!$this->getApp()->service('auth')->isAdmin()) {
             header('HTTP/1.0 403');
             echo "Access denied.";
+            return;
         }
         /** @var Db $db */
         $db = $this->getApp()->service('db');
@@ -94,6 +95,7 @@ class TaskController extends Controller
         if (!$this->getApp()->service('auth')->isAdmin()) {
             header('HTTP/1.0 403');
             echo "Access denied.";
+            return;
         }
         /** @var Db $db */
         $db = $this->getApp()->service('db');
