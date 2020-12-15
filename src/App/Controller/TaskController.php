@@ -47,6 +47,7 @@ class TaskController extends Controller
         if (
             !isset($_POST['task'])
             || !AppUtil::validateAssocSimple($taskArr = $_POST['task'], ['username' => true, 'email' => true, 'text' => true], true)
+            || !filter_var($_POST['task']['email'], FILTER_VALIDATE_EMAIL)
         ) die('HTTP/1.0 400 Bad Request');
         $item = (new TaskItem())->fromAssoc($taskArr);
         /** @var Db $db */
